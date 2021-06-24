@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"zhaoxioaga.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="iOS 动画总结: UIView 动画比较简单的一种: 1+ animateWithDuration:animations: &lt;Excerpt in index | 首页摘要&gt;">
+<meta property="og:type" content="article">
+<meta property="og:title" content="iOS动画总结">
+<meta property="og:url" content="http://zhaoxioaga.github.io/2016/09/03/iOS%E5%8A%A8%E7%94%BB%E6%80%BB%E7%BB%93/index.html">
+<meta property="og:site_name" content="XG">
+<meta property="og:description" content="iOS 动画总结: UIView 动画比较简单的一种: 1+ animateWithDuration:animations: &lt;Excerpt in index | 首页摘要&gt;">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2016-09-03T12:41:00.000Z">
+<meta property="article:modified_time" content="2021-06-21T09:30:36.393Z">
+<meta property="article:author" content="赵小嘎">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://zhaoxioaga.github.io/2016/09/03/iOS%E5%8A%A8%E7%94%BB%E6%80%BB%E7%BB%93/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>iOS动画总结 | XG</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">XG</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://zhaoxioaga.github.io/2016/09/03/iOS%E5%8A%A8%E7%94%BB%E6%80%BB%E7%BB%93/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="赵小嘎">
+      <meta itemprop="description" content="赵小嘎在 Github 上的个人博客">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="XG">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          iOS动画总结
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2016-09-03 20:41:00" itemprop="dateCreated datePublished" datetime="2016-09-03T20:41:00+08:00">2016-09-03</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-06-21 17:30:36" itemprop="dateModified" datetime="2021-06-21T17:30:36+08:00">2021-06-21</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>iOS 动画总结:</p>
+<h3 id="UIView-动画"><a href="#UIView-动画" class="headerlink" title="UIView 动画"></a>UIView 动画</h3><p>比较简单的一种:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">+ animateWithDuration:animations:</span><br></pre></td></tr></table></figure>
+<p>&lt;Excerpt in index | 首页摘要&gt;<br> <a id="more"></a><br>&lt;The rest of contents | 余下全文&gt;</p>
+<p>第一个参数是动画的持续时间，第二个参数是一个 block，在 animations block 中对 UIView 的属性进行调整，设置 UIView 动画结束后最终的效果，iOS 就会自动补充中间帧，形成动画</p>
+<p>可以更改的属性有:</p>
+<ul>
+<li>frame</li>
+<li>bounds</li>
+<li>center</li>
+<li>transform</li>
+<li>alpha</li>
+<li>backgroundColor</li>
+<li>contentStretch</li>
+</ul>
+<p>这些属性大都是 View 的基本属性,其中有一个比较特殊的 transform 属性，它的类型是 CGAffineTransform，即 2D 仿射变换，这是个数学中的概念，用一个三维矩阵来表述 2D 图形的矢量变换。用 transform 属性对 View 进行：</p>
+<ul>
+<li>旋转</li>
+<li>缩放</li>
+<li>其他自定义 2D 变换</li>
+</ul>
+<p>iOS 提供了下面的函数可以创建简单的 2D 变换：</p>
+<ul>
+<li>CGAffineTransformMakeScale</li>
+<li>CGAffineTransformMakeRotation</li>
+<li>CGAffineTransformMakeTranslation</li>
+</ul>
+<p>将 View 缩小至原来的 1/4 大小,代码示例:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[UIView animateWithDuration:2.0 animations:^&#123;</span><br><span class="line">    myView.transform &#x3D; CGAffineTransformMakeScale(0.5, 0.5);</span><br><span class="line">&#125;];</span><br></pre></td></tr></table></figure>
+
+<h3 id="调节参数"><a href="#调节参数" class="headerlink" title="调节参数"></a>调节参数</h3><p>完整版的 animate 函数其实是这样的：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">+ animateWithDuration:delay:options:animations:completion:</span><br></pre></td></tr></table></figure>
+<p>可以通过 delay 参数调节让动画延迟产生，同时还一个 options 选项可以调节动画进行的方式。可用的 options 可分为两类：<br> <strong>控制过程</strong> 和 <strong>控制速度</strong></p>
+<p><strong>控制过程</strong><br>例如 <code>UIViewAnimationOptionRepeat</code> 可以让动画反复进行， <code>UIViewAnimationOptionAllowUserInteraction</code> 可以让允许用户对动画进行过程中同 View 进行交互（默认是不允许的）</p>
+<p><strong>控制速度</strong><br>动画的进行速度可以用速度曲线来表示,提供的选项例如 <code>UIViewAnimationOptionCurveEaseIn</code> 是先慢后快，<code>UIViewAnimationOptionCurveEaseOut</code> 是先快后慢。</p>
+<p>不同的选项直接可以通过“与”操作进行合并，同时使用，例如:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">UIViewAnimationOptionRepeat | UIViewAnimationOptionAllowUserInteraction</span><br></pre></td></tr></table></figure>
+
+<h3 id="关键帧动画"><a href="#关键帧动画" class="headerlink" title="关键帧动画"></a>关键帧动画</h3><p>上面介绍的动画中，我们只能控制开始和结束时的效果，然后由系统补全中间的过程，有些时候我们需要自己设定若干关键帧，实现更复杂的动画效果，这时候就需要关键帧动画的支持了,示例:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">[UIView animateKeyframesWithDuration:2.0 delay:0.0 options:UIViewKeyframeAnimationOptionRepeat | UIViewKeyframeAnimationOptionAutoreverse animations:^&#123;</span><br><span class="line">    [UIView addKeyframeWithRelativeStartTime:0.0 relativeDuration:0.5 animations:^&#123;</span><br><span class="line">        self.myView.frame &#x3D; CGRectMake(10, 50, 100, 100);</span><br><span class="line">    &#125;];</span><br><span class="line">    [UIView addKeyframeWithRelativeStartTime: 0.5 relativeDuration:0.3 animations:^&#123;</span><br><span class="line">        self.myView.frame &#x3D; CGRectMake(20, 100, 100, 100);</span><br><span class="line">    &#125;];</span><br><span class="line">    [UIView addKeyframeWithRelativeStartTime:0.8 relativeDuration:0.2 animations:^&#123;</span><br><span class="line">        self.myView.transform &#x3D; CGAffineTransformMakeScale(0.5, 0.5);</span><br><span class="line">    &#125;];</span><br><span class="line">&#125; completion:nil];</span><br></pre></td></tr></table></figure>
+
+
+<p>这个例子添加了三个关键帧，在外面的 <code>animateKeyframesWithDuration</code> 中我们设置了持续时间为 <code>2.0</code> 秒，这是真实意义上的时间，里面的 <code>startTime</code> 和 <code>relativeDuration</code> 都是相对时间。以第一个为例，<code>startTime</code> 为 <code>0.</code>0，<code>relativeTime</code> 为 <code>0.5</code>，这个动画会直接开始，持续时间为 <code>2.0 X 0.5 = 1.0</code> 秒，下面第二个的开始时间是 <code>0.5</code>，正好承接上一个结束，第三个同理，这样三个动画就变成连续的动画了。</p>
+<h3 id="View-的转换"><a href="#View-的转换" class="headerlink" title="View 的转换"></a>View 的转换</h3><p>iOS 还提供了两个函数，用于进行两个 View 之间通过动画换场：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">+ transitionWithView:duration:options:animations:completion:</span><br><span class="line">+ transitionFromView:toView:duration:options:completion:</span><br></pre></td></tr></table></figure>
+
+<p>需要注意的是，换场动画会在这两个 View 共同的父 View 上进行，在写动画之前，先要设计好 View 的继承结构。</p>
+<p>同样，View 之间的转换也有很多选项可选，例如 <code>UIViewAnimationOptionTransitionFlipFromLeft</code> 从左边翻转，<code>UIViewAnimationOptionTransitionCrossDissolve</code> 渐变等等。</p>
+<h3 id="CALayer-Animation"><a href="#CALayer-Animation" class="headerlink" title="CALayer Animation"></a>CALayer Animation</h3><p>UIView 的动画简单易用，但是能实现的效果相对有限，上面介绍的 UIView 的几种动画方式，实际上是对底层 CALayer 动画的一种封装。直接使用 CALayer 层的动画方法可以实现更多高级的动画效果。</p>
+<p>引入 <strong>QuartzCore.framework</strong></p>
+<ul>
+<li>基本动画（CABasicAnimation）</li>
+</ul>
+<p>CABasicAnimation 用于创建一个 CALayer 上的基本动画效果：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">CABasicAnimation *animation &#x3D; [CABasicAnimation animationWithKeyPath:@&quot;position.x&quot;];</span><br><span class="line">animation.toValue &#x3D; @200;</span><br><span class="line">animation.duration &#x3D; 0.8;</span><br><span class="line">animation.repeatCount &#x3D; 5;</span><br><span class="line">animation.beginTime &#x3D; CACurrentMediaTime() + 0.5;</span><br><span class="line">animation.fillMode &#x3D; kCAFillModeRemoved;</span><br><span class="line">[self.myView.layer addAnimation:animation forKey:nil];</span><br></pre></td></tr></table></figure>
+
+<p><strong>KeyPath:</strong><br>这里我们使用了 animationWithKeyPath 这个方法来改变 layer 的属性，可以使用的属性有很多，具体可以参考<a href="http://www.cnblogs.com/pengyingh/articles/2379631.html" target="_blank" rel="noopener">这里</a>。其中很多属性在前面介绍的 UIView 动画部分我们也看到过，进一步验证了 UIView 的动画方法是对底层 CALayer 的一种封装。</p>
+<p>需要注意的一点是，上面我们使用了 <code>position</code> 属性， layer 的这个 <code>position</code> 属性和 <code>View</code> 的 frame 以及 bounds 属性都不相同，而是和 Layer 的 <code>anchorPoint</code> 有关，可以由下面的公式计算得到：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">position.x &#x3D; frame.origin.x + 0.5 * bounds.size.width；  </span><br><span class="line">position.y &#x3D; frame.origin.y + 0.5 * bounds.size.height；</span><br></pre></td></tr></table></figure>
+
+<p><strong>属性:</strong></p>
+<p>CABasicAnimation 的属性有下面几个：</p>
+<ul>
+<li>beginTime</li>
+<li>duration</li>
+<li>fromValue</li>
+<li>toValue</li>
+<li>byValue</li>
+<li>repeatCount</li>
+<li>autoreverses</li>
+<li>timingFunction</li>
+</ul>
+<p>可以看到，其中 beginTime，duration，repeatCount 等属性和上面在 UIView 中使用到的 duration，UIViewAnimationOptionRepeat 等选项是相对应的，不过这里的选项能够提供更多的扩展性。</p>
+<p>需要注意的是 <code>fromValue</code>，<code>toValue</code>，<code>byValue</code> 这几个选项，支持的设置模式有下面几种：</p>
+<ul>
+<li>设置 fromValue 和 toValue：从 fromValue 变化到 toValue</li>
+<li>设置 fromValue 和 byValue：从 fromValue 变化到 fromValue + byValue</li>
+<li>设置 byValue 和 toValue：从 toValue - byValue 变化到 toValue</li>
+<li>设置 fromValue： 从 fromValue 变化到属性当前值</li>
+<li>设置 toValue：从属性当前值变化到 toValue</li>
+<li>设置 byValue：从属性当前值变化到属性当前值 + toValue</li>
+</ul>
+<p>看起来挺复杂，其实概括起来基本就是，如果某个值不设置，就是用这个属性当前的值</p>
+<p>另外，可以看到上面我们使用的:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">animation.toValue &#x3D; @200;</span><br></pre></td></tr></table></figure>
+
+<p>而不是直接使用 200，因为 <code>toValue</code> 之类的属性为 <code>id</code> 类型，或者像这样使用 @ 符号，或者使用：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">animation.toValue &#x3D; [NSNumber numberWithInt:200];</span><br></pre></td></tr></table></figure>
+
+<p>最后一个比较有意思的是 <code>timingFunction</code> 属性，使用这个属性可以自定义动画的运动曲线（节奏，pacing），系统提供了五种值可以选择：</p>
+<ul>
+<li>kCAMediaTimingFunctionLinear 线性动画</li>
+<li>kCAMediaTimingFunctionEaseIn 先快后慢</li>
+<li>kCAMediaTimingFunctionEaseOut 先慢后快</li>
+<li>kCAMediaTimingFunctionEaseInEaseOut 先慢后快再慢</li>
+<li>kCAMediaTimingFunctionDefault 默认，也属于中间比较快</li>
+</ul>
+<h3 id="关键帧动画（CAKeyframeAnimation）"><a href="#关键帧动画（CAKeyframeAnimation）" class="headerlink" title="关键帧动画（CAKeyframeAnimation）"></a>关键帧动画（CAKeyframeAnimation）</h3><p>同 UIView 中的类似，CALayer 层也提供了关键帧动画的支持，<code>CAKeyFrameAnimation</code> 和 <code>CABasicAnimation</code> 都继承自 <code>CAPropertyAnimation</code>，因此它有具有上面提到的那些属性，此外，<code>CAKeyFrameAnimation</code> 还有特有的几个属性。</p>
+<p><strong>values 和 keyTimes</strong></p>
+<p>使用 <code>values</code> 和 <code>keyTimes</code> 可以共同确定一个动画的若干关键帧,示例:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">CAKeyframeAnimation *anima &#x3D; [CAKeyframeAnimation animationWithKeyPath:@&quot;transform.rotation&quot;];&#x2F;&#x2F;在这里@&quot;transform.rotation&quot;&#x3D;&#x3D;@&quot;transform.rotation.z&quot;</span><br><span class="line">NSValue *value1 &#x3D; [NSNumber numberWithFloat:-M_PI&#x2F;180*4];</span><br><span class="line">NSValue *value2 &#x3D; [NSNumber numberWithFloat:M_PI&#x2F;180*4];</span><br><span class="line">NSValue *value3 &#x3D; [NSNumber numberWithFloat:-M_PI&#x2F;180*4];</span><br><span class="line">anima.values &#x3D; @[value1,value2,value3];</span><br><span class="line">&#x2F;&#x2F; anima.keyTimes &#x3D; @[@0.0, @0.5, @1.0];</span><br><span class="line">anima.repeatCount &#x3D; MAXFLOAT;</span><br><span class="line">[_demoView.layer addAnimation:anima forKey:@&quot;shakeAnimation&quot;];</span><br></pre></td></tr></table></figure>
+
+<p>可以看到上面这个动画共有三个关键帧，如果没有指定 keyTimes 则各个关键帧会平分整个动画的时间(duration)。</p>
+<p><strong>path</strong><br>使用 path 属性可以设置一个动画的运动路径，注意 path 只对 CALayer 的 anchorPoint 和position 属性起作用，另外如果你设置了 path ，那么 values 将被忽略.</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">CAKeyframeAnimation *anima &#x3D; [CAKeyframeAnimation animationWithKeyPath:@&quot;position&quot;];</span><br><span class="line">UIBezierPath *path &#x3D; [UIBezierPath bezierPathWithOvalInRect:CGRectMake(SCREEN_WIDTH&#x2F;2-100, SCREEN_HEIGHT&#x2F;2-100, 200, 200)];</span><br><span class="line">anima.path &#x3D; path.CGPath;</span><br><span class="line">anima.duration &#x3D; 2.0f;</span><br><span class="line">[_demoView.layer addAnimation:anima forKey:@&quot;pathAnimation&quot;];</span><br></pre></td></tr></table></figure>
+
+<p><strong>组动画（CAAnimationGroup)</strong></p>
+<p>组动画可以将一组动画组合在一起，所有动画对象可以同时运行，示例:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">CAAnimationGroup *group &#x3D; [[CAAnimationGroup alloc] init];</span><br><span class="line">CABasicAnimation *animationOne &#x3D; [CABasicAnimation animationWithKeyPath:@&quot;transform.scale&quot;];</span><br><span class="line"></span><br><span class="line">animationOne.toValue &#x3D; @2.0;</span><br><span class="line">animationOne.duration &#x3D; 1.0;</span><br><span class="line"></span><br><span class="line">CABasicAnimation *animationTwo &#x3D; [CABasicAnimation animationWithKeyPath:@&quot;position.x&quot;];</span><br><span class="line">animationTwo.toValue &#x3D; @400;</span><br><span class="line">animationTwo.duration &#x3D; 1.0;</span><br><span class="line"></span><br><span class="line">[group setAnimations:@[animationOne, animationTwo]];</span><br><span class="line">[self.myView.layer addAnimation:group forKey:nil];</span><br></pre></td></tr></table></figure>
+
+<p>需要注意的是，一个 group 组内的某个动画的持续时间（duration），如果超过了整个组的动画持续时间，那么多出的动画时间将不会被展示。例如一个 group 的持续时间是 5s，而组内一个动画持续时间为 10s ，那么这个 10s 的动画只会展示前 5s 。</p>
+<p><strong>切换动画（CATransition）</strong><br>CATransition 可以用于 View 或 ViewController 直接的换场动画：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">self.myView.backgroundColor &#x3D; [UIColor blueColor];</span><br><span class="line">CATransition *trans &#x3D; [CATransition animation];</span><br><span class="line">trans.duration &#x3D; 1.0;</span><br><span class="line">trans.type &#x3D; @&quot;push&quot;;</span><br><span class="line"></span><br><span class="line">[self.myView.layer addAnimation:trans forKey:nil];</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F; 这句放在下面也可以</span><br><span class="line">&#x2F;&#x2F; self.myView.backgroundColor &#x3D; [UIColor blueColor];</span><br></pre></td></tr></table></figure>
+
+<h3 id="更高级的动画效果"><a href="#更高级的动画效果" class="headerlink" title="更高级的动画效果"></a>更高级的动画效果</h3><p>详情会在另一篇文章中汇总<br><strong>CADisplayLink</strong><br>CADisplayLink 是一个计时器对象，可以周期性的调用某个 selecor 方法。相比 NSTimer ，它可以让我们以和屏幕刷新率同步的频率（每秒60次）来调用绘制函数，实现界面连续的不停重绘，从而实现动画效果。</p>
+<p><strong>UIDynamicAnimator</strong><br>UIDynamicAnimator 是 iOS 7 引入的一个新类，可以创建出具有物理仿真效果的动画，具体提供了下面几种物理仿真行为：</p>
+<ul>
+<li>UIGravityBehavior：重力行为</li>
+<li>UICollisionBehavior：碰撞行为</li>
+<li>UISnapBehavior：捕捉行为</li>
+<li>UIPushBehavior：推动行为</li>
+<li>UIAttachmentBehavior：附着行为</li>
+<li>UIDynamicItemBehavior：动力元素行为</li>
+</ul>
+<p><strong>CAEmitterLayer</strong><br>CAEmitterLayer 是 Core Animation 提供的一个粒子发生器系统，可以用于创建各种粒子动画，例如烟雾，焰火等效果。</p>
+<p>参考:<a href="https://hit-alibaba.github.io/interview/iOS/Cocoa-Touch/Animation.html" target="_blank" rel="noopener">这里</a></p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2016/08/09/UIApplicaion%E8%A7%A3%E6%9E%90/" rel="prev" title="UIApplicaion解析">
+      <i class="fa fa-chevron-left"></i> UIApplicaion解析
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2017/04/02/%E9%80%86%E5%90%91%E4%B9%8B%E6%89%8B%E6%9C%BAapp%E7%A0%B8%E5%A3%B3%E8%AE%B0%E5%BD%95/" rel="next" title="逆向之手机app砸壳记录">
+      逆向之手机app砸壳记录 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#UIView-动画"><span class="nav-number">1.</span> <span class="nav-text">UIView 动画</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#调节参数"><span class="nav-number">2.</span> <span class="nav-text">调节参数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#关键帧动画"><span class="nav-number">3.</span> <span class="nav-text">关键帧动画</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#View-的转换"><span class="nav-number">4.</span> <span class="nav-text">View 的转换</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#CALayer-Animation"><span class="nav-number">5.</span> <span class="nav-text">CALayer Animation</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#关键帧动画（CAKeyframeAnimation）"><span class="nav-number">6.</span> <span class="nav-text">关键帧动画（CAKeyframeAnimation）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#更高级的动画效果"><span class="nav-number">7.</span> <span class="nav-text">更高级的动画效果</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">赵小嘎</p>
+  <div class="site-description" itemprop="description">赵小嘎在 Github 上的个人博客</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">18</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">赵小嘎</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

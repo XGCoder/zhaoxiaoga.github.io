@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"zhaoxioaga.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="首先，我们来看一下 AFNetworking 框架中主要涉及到了哪些类： NSURLSession:  AFURLSessionManager AFHTTPSessionManager  序列化:  AFURLRequestSerialization AFURLResponseSerialization  附加功能:  AFSecurityPolicy AFNetworkReachabilityM">
+<meta property="og:type" content="article">
+<meta property="og:title" content="8-AFN2-0与3-0比较(二)">
+<meta property="og:url" content="http://zhaoxioaga.github.io/2016/06/13/AFN2-0%E4%B8%8E3-0%E6%AF%94%E8%BE%83(%E4%BA%8C)/index.html">
+<meta property="og:site_name" content="XG">
+<meta property="og:description" content="首先，我们来看一下 AFNetworking 框架中主要涉及到了哪些类： NSURLSession:  AFURLSessionManager AFHTTPSessionManager  序列化:  AFURLRequestSerialization AFURLResponseSerialization  附加功能:  AFSecurityPolicy AFNetworkReachabilityM">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://zhaoxioaga.github.io/img/AFN%E6%9E%B6%E6%9E%84%E6%A1%86%E6%9E%B6.png">
+<meta property="article:published_time" content="2016-06-13T14:16:30.000Z">
+<meta property="article:modified_time" content="2021-06-21T09:30:36.391Z">
+<meta property="article:author" content="赵小嘎">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://zhaoxioaga.github.io/img/AFN%E6%9E%B6%E6%9E%84%E6%A1%86%E6%9E%B6.png">
+
+<link rel="canonical" href="http://zhaoxioaga.github.io/2016/06/13/AFN2-0%E4%B8%8E3-0%E6%AF%94%E8%BE%83(%E4%BA%8C)/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>8-AFN2-0与3-0比较(二) | XG</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">XG</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://zhaoxioaga.github.io/2016/06/13/AFN2-0%E4%B8%8E3-0%E6%AF%94%E8%BE%83(%E4%BA%8C)/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="赵小嘎">
+      <meta itemprop="description" content="赵小嘎在 Github 上的个人博客">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="XG">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          8-AFN2-0与3-0比较(二)
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2016-06-13 22:16:30" itemprop="dateCreated datePublished" datetime="2016-06-13T22:16:30+08:00">2016-06-13</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-06-21 17:30:36" itemprop="dateModified" datetime="2021-06-21T17:30:36+08:00">2021-06-21</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>首先，我们来看一下 AFNetworking 框架中主要涉及到了哪些类：</p>
+<p>NSURLSession:</p>
+<ul>
+<li>AFURLSessionManager</li>
+<li>AFHTTPSessionManager</li>
+</ul>
+<p>序列化:</p>
+<ul>
+<li>AFURLRequestSerialization</li>
+<li>AFURLResponseSerialization</li>
+</ul>
+<p>附加功能:</p>
+<ul>
+<li>AFSecurityPolicy</li>
+<li>AFNetworkReachabilityManager</li>
+</ul>
+<p>&lt;Excerpt in index | 首页摘要&gt;<br> <a id="more"></a><br>&lt;The rest of contents | 余下全文&gt;</p>
+<p>AFN 架构的设计如图:<br><img src="/img/AFN%E6%9E%B6%E6%9E%84%E6%A1%86%E6%9E%B6.png" alt=""></p>
+<h3 id="AFHTTPSessionManager"><a href="#AFHTTPSessionManager" class="headerlink" title="AFHTTPSessionManager"></a>AFHTTPSessionManager</h3><p><code>AFHTTPSessionManager</code> 继承于 <code>AFURLSessionManager</code>，并提供了方便的 HTTP 请求方法。</p>
+<p>demo:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">AFHTTPSessionManager *sessionManager &#x3D; [[AFHTTPSessionManager alloc] initWithBaseURL:[NSURL URLWithString:@&quot;https:&#x2F;&#x2F;api.xxxx.com&#x2F;&quot;]];</span><br><span class="line">[sessionManager GET:@&quot;stream&#x2F;0&#x2F;posts&#x2F;stream&#x2F;global&quot; parameters:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nonnull responseObject) &#123;</span><br><span class="line">    NSLog(@&quot;请求成功---%@&quot;, responseObject);</span><br><span class="line">    &#125; failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) &#123;</span><br><span class="line">    NSLog(@&quot;请求失败---%@&quot;, error);</span><br><span class="line">&#125;];</span><br></pre></td></tr></table></figure>
+
+<p>通过上面短短几行代码，我们便完成了 GET 请求，有木有很简单！现在是不是很想知道其背后蕴藏的玄机呢？别急，下面就让我们一起来探一探究竟。</p>
+<h3 id="调用栈"><a href="#调用栈" class="headerlink" title="调用栈"></a>调用栈</h3><h3 id="initWithBaseURL"><a href="#initWithBaseURL" class="headerlink" title="initWithBaseURL:"></a>initWithBaseURL:</h3><p>首先，我们来探一探 <code>AFHTTPSessionManager</code> 初始化方法 <code>- initWithBaseURL:</code> 的调用栈：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">AFHTTPSessionManager *sessionManager &#x3D; [[AFHTTPSessionManager alloc] initWithBaseURL:[NSURL URLWithString:@&quot;https:&#x2F;&#x2F;api.xxx.com&quot;]];</span><br></pre></td></tr></table></figure>
+<p>根据调试方法步骤看到:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">- [AFHTTPSessionManager initWithBaseURL:]</span><br><span class="line">    - [AFHTTPSessionManager initWithBaseURL:sessionConfiguration:]</span><br><span class="line">        - [AFURLSessionManager initWithSessionConfiguration:]</span><br><span class="line">            - [NSURLSession sessionWithConfiguration:delegate:delegateQueue:]</span><br><span class="line">            - [AFJSONResponseSerializer serializer] &#x2F;&#x2F; 负责序列化响应</span><br><span class="line">            - [AFSecurityPolicy defaultPolicy] &#x2F;&#x2F; 负责身份认证</span><br><span class="line">            - [AFNetworkReachabilityManager sharedManager] &#x2F;&#x2F; 查看网络连接情况</span><br><span class="line">        - [AFHTTPRequestSerializer serializer] &#x2F;&#x2F; 负责序列化请求</span><br><span class="line">        - [AFJSONResponseSerializer serializer] &#x2F;&#x2F; 负责序列化响应</span><br></pre></td></tr></table></figure>
+
+<p>从这个初始化方法的调用栈，我们可以非常清晰地了解这个框架的结构：</p>
+<ul>
+<li>其中 <code>AFURLSessionManager</code> 是 <code>AFHTTPSessionManager</code> 的父类</li>
+<li><code>AFURLSessionManager</code> 负责生成 <code>NSURLSession</code> 的实例，管理 <code>AFSecurityPolicy</code> 和 <code>AFNetworkReachabilityManager</code>，来保证请求的安全和查看网络连接情况，它有一个 <code>AFJSONResponseSerializer</code> 的实例来序列化 HTTP 响应</li>
+<li><code>AFHTTPSessionManager</code> 有着自己的 <code>AFHTTPRequestSerializer</code> 和 <code>AFJSONResponseSerializer</code> 来管理请求和响应的序列化，同时依赖父类提供的接口保证安全、监控网络状态，实现发出 HTTP 请求这一核心功能</li>
+</ul>
+<h3 id="baseURL"><a href="#baseURL" class="headerlink" title="baseURL"></a>baseURL</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">NSURL *baseURL &#x3D; [NSURL URLWithString:@&quot;http:&#x2F;&#x2F;example.com&#x2F;v1&#x2F;&quot;];</span><br><span class="line">[NSURL URLWithString:@&quot;foo&quot; relativeToURL:baseURL];                  &#x2F;&#x2F; http:&#x2F;&#x2F;example.com&#x2F;v1&#x2F;foo</span><br><span class="line">[NSURL URLWithString:@&quot;foo?bar&#x3D;baz&quot; relativeToURL:baseURL];          &#x2F;&#x2F; http:&#x2F;&#x2F;example.com&#x2F;v1&#x2F;foo?bar&#x3D;baz</span><br><span class="line">[NSURL URLWithString:@&quot;&#x2F;foo&quot; relativeToURL:baseURL];                 &#x2F;&#x2F; http:&#x2F;&#x2F;example.com&#x2F;foo</span><br><span class="line">[NSURL URLWithString:@&quot;foo&#x2F;&quot; relativeToURL:baseURL];                 &#x2F;&#x2F; http:&#x2F;&#x2F;example.com&#x2F;v1&#x2F;foo</span><br><span class="line">[NSURL URLWithString:@&quot;&#x2F;foo&#x2F;&quot; relativeToURL:baseURL];                &#x2F;&#x2F; http:&#x2F;&#x2F;example.com&#x2F;foo&#x2F;</span><br><span class="line">[NSURL URLWithString:@&quot;http:&#x2F;&#x2F;example2.com&#x2F;&quot; relativeToURL:baseURL]; &#x2F;&#x2F; http:&#x2F;&#x2F;example2.com&#x2F;</span><br></pre></td></tr></table></figure>
+<p><code>baseURL</code> 为访问的基路径如：<a href="https://api.app.net/，" target="_blank" rel="noopener">https://api.app.net/，</a> path 是跟在基路径之后的部分路径</p>
+<h3 id="GET-parameters-process-success-failure"><a href="#GET-parameters-process-success-failure" class="headerlink" title="GET:parameters:process:success:failure:"></a>GET:parameters:process:success:failure:</h3><p>初始化方法很好地揭示了 AFNetworking 整个框架的架构，接下来我们要通过分析另一个方法 <code>- GET:parameters:process:success:failure:</code> 的调用栈，看一下 HTTP 请求是如何发出的：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">- [AFHTTPSessionManager GET:parameters:process:success:failure:]</span><br><span class="line">    - [AFHTTPSessionManager dataTaskWithHTTPMethod:parameters:uploadProgress:downloadProgress:success:failure:] &#x2F;&#x2F; 返回 NSURLSessionDataTask #1</span><br><span class="line">        - [AFHTTPRequestSerializer requestWithMethod:URLString:parameters:error:] &#x2F;&#x2F; 返回 NSMutableURLRequest</span><br><span class="line">        - [AFURLSessionManager dataTaskWithRequest:uploadProgress:downloadProgress:completionHandler:] &#x2F;&#x2F; 返回 NSURLSessionDataTask #2</span><br><span class="line">            - [NSURLSession dataTaskWithRequest:] &#x2F;&#x2F; 返回 NSURLSessionDataTask #3</span><br><span class="line">            - [AFURLSessionManager addDelegateForDataTask:uploadProgress:downloadProgress:completionHandler:]</span><br><span class="line">                - [AFURLSessionManagerTaskDelegate init]</span><br><span class="line">                - [AFURLSessionManager setDelegate:forTask:]</span><br><span class="line">    - [NSURLSessionDataTask resume]</span><br></pre></td></tr></table></figure>
+
+<p>在这里 <code>#1</code> <code>#2</code> <code>#3</code> 处返回的是同一个 data task，我们可以看到，在 <code>#3</code> 处调用的方法 <code>- [NSURLSession dataTaskWithRequest:]</code> 和只使用 <code>NSURLSession</code> 发出 HTTP 请求时调用的方法 <code>- [NSURLSession dataTaskWithRequest:completionHandler:]</code> 差不多。在这个地方返回 data task 之后，我们再调用 <code>- resume</code> 方法执行请求，并在某些事件执行时通知代理 <code>AFURLSessionManagerTaskDelegate</code>。</p>
+<p>我们在第一篇文章中已经说明过，AFNetworking 3.0 既是在 NSURLSession 之上的高度封装，并提供更加简洁易用的 API。从调用栈的结果来看，将使我们的理解更加清晰。</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2016/06/10/AFN2-0%E4%B8%8E3-0%E6%AF%94%E8%BE%83(%E4%B8%80)/" rel="prev" title="7.AFN2.0与3.0比较">
+      <i class="fa fa-chevron-left"></i> 7.AFN2.0与3.0比较
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2016/06/17/AFN2-0%E4%B8%8E3-0%E6%AF%94%E8%BE%83(%E4%B8%89)/" rel="next" title="9-AFN2-0与3-0比较(三)">
+      9-AFN2-0与3-0比较(三) <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#AFHTTPSessionManager"><span class="nav-number">1.</span> <span class="nav-text">AFHTTPSessionManager</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#调用栈"><span class="nav-number">2.</span> <span class="nav-text">调用栈</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#initWithBaseURL"><span class="nav-number">3.</span> <span class="nav-text">initWithBaseURL:</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#baseURL"><span class="nav-number">4.</span> <span class="nav-text">baseURL</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#GET-parameters-process-success-failure"><span class="nav-number">5.</span> <span class="nav-text">GET:parameters:process:success:failure:</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">赵小嘎</p>
+  <div class="site-description" itemprop="description">赵小嘎在 Github 上的个人博客</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">18</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">赵小嘎</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

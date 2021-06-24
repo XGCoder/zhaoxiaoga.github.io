@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"zhaoxioaga.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="不同操作系统的k而执行文件格式都不相同,例如: Linux下可执行文件的格式 –&gt; ELFwindows的可执行文件的格式 –&gt; PE32／PE32+OS X和iOS的可执行文件的格式 –&gt; Mach-O &lt;Excerpt in index | 首页摘要&gt;">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Mach-O格式分析">
+<meta property="og:url" content="http://zhaoxioaga.github.io/2017/04/05/Mach-O%E6%A0%BC%E5%BC%8F%E5%88%86%E6%9E%90/index.html">
+<meta property="og:site_name" content="XG">
+<meta property="og:description" content="不同操作系统的k而执行文件格式都不相同,例如: Linux下可执行文件的格式 –&gt; ELFwindows的可执行文件的格式 –&gt; PE32／PE32+OS X和iOS的可执行文件的格式 –&gt; Mach-O &lt;Excerpt in index | 首页摘要&gt;">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://zhaoxioaga.github.io/img/Mach-O.jpg">
+<meta property="og:image" content="http://zhaoxioaga.github.io/img/mach-oHeader.png">
+<meta property="og:image" content="http://zhaoxioaga.github.io/img/mach-oLoadCommand.png">
+<meta property="og:image" content="http://zhaoxioaga.github.io/img/mach-oSection.png">
+<meta property="article:published_time" content="2017-04-05T12:22:51.000Z">
+<meta property="article:modified_time" content="2021-06-21T09:30:36.392Z">
+<meta property="article:author" content="赵小嘎">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://zhaoxioaga.github.io/img/Mach-O.jpg">
+
+<link rel="canonical" href="http://zhaoxioaga.github.io/2017/04/05/Mach-O%E6%A0%BC%E5%BC%8F%E5%88%86%E6%9E%90/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Mach-O格式分析 | XG</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">XG</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://zhaoxioaga.github.io/2017/04/05/Mach-O%E6%A0%BC%E5%BC%8F%E5%88%86%E6%9E%90/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="赵小嘎">
+      <meta itemprop="description" content="赵小嘎在 Github 上的个人博客">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="XG">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Mach-O格式分析
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2017-04-05 20:22:51" itemprop="dateCreated datePublished" datetime="2017-04-05T20:22:51+08:00">2017-04-05</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-06-21 17:30:36" itemprop="dateModified" datetime="2021-06-21T17:30:36+08:00">2021-06-21</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>不同操作系统的k而执行文件格式都不相同,例如:</p>
+<p><code>Linux</code>下可执行文件的格式 –&gt; <code>ELF</code><br><code>windows</code>的可执行文件的格式 –&gt; <code>PE32／PE32+</code><br><code>OS X和iOS</code>的可执行文件的格式 –&gt; <code>Mach-O</code></p>
+<p>&lt;Excerpt in index | 首页摘要&gt;<br> <a id="more"></a><br>&lt;The rest of contents | 余下全文&gt;</p>
+<p>在这里先简单谈一谈 <code>Mach-O</code>格式<br><code>Mach-O</code>格式包括了 <code>Header</code>、<code>Load commands</code>、<code>Data</code></p>
+<p><img src="/img/Mach-O.jpg" alt=""></p>
+<h3 id="Header-的结构"><a href="#Header-的结构" class="headerlink" title="Header 的结构"></a>Header 的结构</h3><p><code>Mach－O</code>的头部，使得可以快速确认一些信息，比如当前文件用于32位还是64位，对应的处理器是什么、文件类型是什么</p>
+<p>我们可以使用<code>MachOView</code>（是一个查看MachO 格式文件信息的开源工具）来查看逆向后的WeChat.decrypted文件的具体格式如何</p>
+<p><img src="/img/mach-oHeader.png" alt=""></p>
+<p>下面看一下 header的数据结构:</p>
+<p>32位结构:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">struct mach_header &#123;</span><br><span class="line">    uint32_t    magic;        &#x2F;* mach magic number identifier *&#x2F;</span><br><span class="line">    cpu_type_t    cputype;    &#x2F;* cpu specifier *&#x2F;</span><br><span class="line">    cpu_subtype_t    cpusubtype;    &#x2F;* machine specifier *&#x2F;</span><br><span class="line">    uint32_t    filetype;    &#x2F;* type of file *&#x2F;</span><br><span class="line">    uint32_t    ncmds;        &#x2F;* number of load commands *&#x2F;</span><br><span class="line">    uint32_t    sizeofcmds;    &#x2F;* the size of all the load commands *&#x2F;</span><br><span class="line">    uint32_t    flags;        &#x2F;* flags *&#x2F;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>64位架构:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">struct mach_header_64 &#123;</span><br><span class="line">    uint32_t    magic;        &#x2F;* mach magic number identifier *&#x2F;</span><br><span class="line">    cpu_type_t    cputype;    &#x2F;* cpu specifier *&#x2F;</span><br><span class="line">    cpu_subtype_t    cpusubtype;    &#x2F;* machine specifier *&#x2F;</span><br><span class="line">    uint32_t    filetype;    &#x2F;* type of file *&#x2F;</span><br><span class="line">    uint32_t    ncmds;        &#x2F;* number of load commands *&#x2F;</span><br><span class="line">    uint32_t    sizeofcmds;    &#x2F;* the size of all the load commands *&#x2F;</span><br><span class="line">    uint32_t    flags;        &#x2F;* flags *&#x2F;</span><br><span class="line">    uint32_t    reserved;    &#x2F;* reserved *&#x2F;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>32位和64位架构的头文件，没有太大的区别，只是64位多了一个保留字段</p>
+<ul>
+<li><code>magic</code>：  魔数，用于快速确认该文件用于64位还是32位</li>
+<li><code>cputype</code>：CPU类型，比如 arm</li>
+<li><code>cpusubtype</code>：对应的具体类型，比如arm64、armv7</li>
+<li><code>filetype</code>：文件类型，比如可执行文件、库文件、Dsym文件，demo中是2 <code>MH_EXECUTE</code>，代表可执行文件</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">&#x2F; *</span><br><span class="line">  * Constants for the filetype field of the mach_header</span><br><span class="line">  *&#x2F;</span><br><span class="line">#define    MH_OBJECT    0x1        &#x2F;* relocatable object file *&#x2F;</span><br><span class="line">#define    MH_EXECUTE    0x2        &#x2F;* demand paged executable file *&#x2F;</span><br><span class="line">#define    MH_FVMLIB    0x3        &#x2F;* fixed VM shared library file *&#x2F;</span><br><span class="line">#define    MH_CORE        0x4        &#x2F;* core file *&#x2F;</span><br><span class="line">#define    MH_PRELOAD    0x5        &#x2F;* preloaded executable file *&#x2F;</span><br><span class="line">#define    MH_DYLIB    0x6        &#x2F;* dynamically bound shared library *&#x2F;</span><br><span class="line">#define    MH_DYLINKER    0x7        &#x2F;* dynamic link editor *&#x2F;</span><br><span class="line">#define    MH_BUNDLE    0x8        &#x2F;* dynamically bound bundle file *&#x2F;</span><br><span class="line">#define    MH_DYLIB_STUB    0x9        &#x2F;* shared library stub for static *&#x2F;</span><br><span class="line">#define    MH_DSYM        0xa        &#x2F;* companion file with only debug *&#x2F;</span><br><span class="line">#define    MH_KEXT_BUNDLE    0xb        &#x2F;* x86_64 kexts *&#x2F;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><code>ncmds</code> ：加载命令条数</li>
+<li><code>sizeofcmds</code>：所有加载命令的大小</li>
+<li><code>reserved</code>：保留字段</li>
+<li><code>flags</code>：标志位，刚才demo中显示的都在这里了，其余的有兴趣可以阅读 <code>mach o</code> 源码</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">#define    MH_NOUNDEFS    0x1        &#x2F;&#x2F; 目前没有未定义的符号，不存在链接依赖</span><br><span class="line">#define    MH_DYLDLINK    0x4        &#x2F;&#x2F; 该文件是dyld的输入文件，无法被再次静态链接</span><br><span class="line">#define    MH_PIE 0x200000        &#x2F;&#x2F; 加载程序在随机的地址空间，只在 MH_EXECUTE中使用</span><br><span class="line">#define    MH_TWOLEVEL    0x80    &#x2F;&#x2F; 两级名称空间</span><br></pre></td></tr></table></figure>
+
+<h3 id="随机地址空间"><a href="#随机地址空间" class="headerlink" title="随机地址空间"></a>随机地址空间</h3><p>进程每一次启动，地址空间都会简单地随机化。</p>
+<p>对于大多数应用程序来说，地址空间随机化是一个和他们完全不相关的实现细节，但是对于黑客来说，它具有重大的意义。</p>
+<p>如果采用传统的方式，程序的每一次启动的虚拟内存镜像都是一致的，黑客很容易采取重写内存的方式来破解程序。采用ASLR可以有效的避免黑客攻击.</p>
+<h3 id="dyld"><a href="#dyld" class="headerlink" title="dyld"></a>dyld</h3><p>动态链接器，他是苹果开源的一个项目，可以在<a href="http://opensource.apple.com/tarballs/dyld/dyld-360.18.tar.gz" target="_blank" rel="noopener">这里</a>下载，当内核执行<code>LC_DYLINK</code>（后面会说到）时，连接器会启动，查找进程所依赖的动态库，并加载到内存中。</p>
+<h3 id="二级名称空间"><a href="#二级名称空间" class="headerlink" title="二级名称空间"></a>二级名称空间</h3><p>这是<code>dyld</code>的一个独有特性，说是符号空间中还包括所在库的信息，这样子就可以让两个不同的库导出相同的符号，与其对应的是平坦名称空间</p>
+<h3 id="Load-commands-结构"><a href="#Load-commands-结构" class="headerlink" title="Load commands 结构"></a>Load commands 结构</h3><p><code>Load commands</code>紧跟在头部之后，这些加载指令清晰地告诉加载器如何处理二进制数据，有些命令是由内核处理的，有些是由动态链接器处理的。在源码中有明显的注释来说明这些是动态连接器处理的。</p>
+<p>例如:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F; 将文件的32位或64位的段映射到进程地址空间</span><br><span class="line">#define    LC_SEGMENT    0x1    </span><br><span class="line">#define    LC_SEGMENT_64    0x19    </span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F; 唯一的 UUID，标示二进制文件</span><br><span class="line">#define    LC_UUID        0x1b    &#x2F;* the uuid *&#x2F;</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F; 刚才提到的，启动动态加载连接器</span><br><span class="line">#define    LC_LOAD_DYLINKER 0xe    &#x2F;* load a dynamic linker *&#x2F;</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F; 代码签名和加密</span><br><span class="line">#define    LC_CODE_SIGNATURE 0x1d    &#x2F;* local of code signature *&#x2F;</span><br><span class="line">#define    LC_ENCRYPTION_INFO 0x21    &#x2F;* encrypted segment information *&#x2F;</span><br></pre></td></tr></table></figure>
+
+<p><code>load command</code>的结构如下</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">struct load_command &#123;</span><br><span class="line">    uint32_t cmd;        &#x2F;* type of load command *&#x2F;</span><br><span class="line">    uint32_t cmdsize;    &#x2F;* total size of command in bytes *&#x2F;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>通过 <code>MachOView</code>来继续查看刚才Demo中的<code>Load commands</code>的一些细节，<code>LC_SEGMENT_64</code>和<code>LC_SEGMENT</code>是加载的主要命令，它负责指导内核来设置进程的内存空间</p>
+<p><img src="/img/mach-oLoadCommand.png" alt=""></p>
+<ul>
+<li><code>cmd</code>：就是<code>Load commands</code>的类型，这里<code>LC_SEGMENT_64</code>代表将文件中64位的段映射到进程的地址空间。<code>LC_SEGMENT_64</code>和<code>LC_SEGMENT</code>的结构差别不大,简单举例:</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">struct segment_command_64 &#123; &#x2F;* for 64-bit architectures *&#x2F;</span><br><span class="line">    uint32_t    cmd;        &#x2F;* LC_SEGMENT_64 *&#x2F;</span><br><span class="line">    uint32_t    cmdsize;    &#x2F;* includes sizeof section_64 structs *&#x2F;</span><br><span class="line">    char        segname[16];    &#x2F;* segment name *&#x2F;</span><br><span class="line">    uint64_t    vmaddr;        &#x2F;* memory address of this segment *&#x2F;</span><br><span class="line">    uint64_t    vmsize;        &#x2F;* memory size of this segment *&#x2F;</span><br><span class="line">    uint64_t    fileoff;    &#x2F;* file offset of this segment *&#x2F;</span><br><span class="line">    uint64_t    filesize;    &#x2F;* amount to map from the file *&#x2F;</span><br><span class="line">    vm_prot_t    maxprot;    &#x2F;* maximum VM protection *&#x2F;</span><br><span class="line">    vm_prot_t    initprot;    &#x2F;* initial VM protection *&#x2F;</span><br><span class="line">    uint32_t    nsects;        &#x2F;* number of sections in segment *&#x2F;</span><br><span class="line">    uint32_t    flags;        &#x2F;* flags *&#x2F;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<ul>
+<li><code>cmdsize</code>：代表<code>load command</code>的大小</li>
+<li><code>VM Address</code> ：段的虚拟内存地址</li>
+<li><code>VM Size</code> ： 段的虚拟内存大小</li>
+<li><code>file offset</code>：段在文件中偏移量</li>
+<li><code>file size</code>：段在文件中的大小</li>
+</ul>
+<p>将该段对应的文件内容加载到内存中：从<code>offset</code>处加载 <code>file size</code>大小到虚拟内存 <code>vmaddr</code>处，由于这里在内存地址空间中是<code>_PAGEZERO</code>段（这个段不具有访问权限，用来处理空指针）所以都是零</p>
+<p>还有图片中的其他段，比如<code>_TEXT</code>对应的就是代码段，<code>_DATA</code>对应的是可读／可写的数据，<code>_LINKEDIT</code>是支持<code>dyld</code>的，里面包含一些符号表等数据</p>
+<ul>
+<li><code>nsects</code>：标示了<code>Segment</code>中有多少<code>secetion</code></li>
+<li><code>segment name</code>：段的名称，当前是<code>__PAGEZERO</code></li>
+</ul>
+<h3 id="Segment-amp-Section"><a href="#Segment-amp-Section" class="headerlink" title="Segment &amp; Section"></a>Segment &amp; Section</h3><p>这里有个命名的问题，如下图所示，<code>__TEXT</code>代表的是<code>Segment</code>，小写的<code>__text</code>代表 <code>Section</code></p>
+<p>/<img src="/img/mach-oSection.png" alt=""></p>
+<p><code>Section</code>的数据结构</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">struct section &#123; &#x2F;* for 32-bit architectures *&#x2F;</span><br><span class="line">    char        sectname[16];    &#x2F;* name of this section *&#x2F;</span><br><span class="line">    char        segname[16];    &#x2F;* segment this section goes in *&#x2F;</span><br><span class="line">    uint32_t    addr;        &#x2F;* memory address of this section *&#x2F;</span><br><span class="line">    uint32_t    size;        &#x2F;* size in bytes of this section *&#x2F;</span><br><span class="line">    uint32_t    offset;        &#x2F;* file offset of this section *&#x2F;</span><br><span class="line">    uint32_t    align;        &#x2F;* section alignment (power of 2) *&#x2F;</span><br><span class="line">    uint32_t    reloff;        &#x2F;* file offset of relocation entries *&#x2F;</span><br><span class="line">    uint32_t    nreloc;        &#x2F;* number of relocation entries *&#x2F;</span><br><span class="line">    uint32_t    flags;        &#x2F;* flags (section type and attributes)*&#x2F;</span><br><span class="line">    uint32_t    reserved1;    &#x2F;* reserved (for offset or index) *&#x2F;</span><br><span class="line">    uint32_t    reserved2;    &#x2F;* reserved (for count or sizeof) *&#x2F;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<ul>
+<li><code>sectname</code>：比如<code>_text</code>、<code>stubs</code></li>
+<li><code>segname</code> ：该<code>section</code>所属的<code>segment</code>，比如<code>__TEXT</code></li>
+<li><code>addr</code> ： 该<code>section</code>在内存的起始位置</li>
+<li><code>size</code>： 该<code>section</code>的大小</li>
+<li><code>offset</code>： 该<code>section</code>的文件偏移</li>
+<li><code>align</code> ：字节大小对齐</li>
+<li><code>reloff</code> ：重定位入口的文件偏移</li>
+<li><code>nreloc</code>： 需要重定位的入口数量</li>
+<li><code>flags</code>：包含<code>section</code>的<code>type</code>和<code>attributes</code></li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2017/04/02/%E9%80%86%E5%90%91%E4%B9%8B%E6%89%8B%E6%9C%BAapp%E7%A0%B8%E5%A3%B3%E8%AE%B0%E5%BD%95/" rel="prev" title="逆向之手机app砸壳记录">
+      <i class="fa fa-chevron-left"></i> 逆向之手机app砸壳记录
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2017/04/10/lldb%E8%B0%83%E8%AF%95%E5%91%BD%E4%BB%A4/" rel="next" title="lldb调试命令">
+      lldb调试命令 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#Header-的结构"><span class="nav-number">1.</span> <span class="nav-text">Header 的结构</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#随机地址空间"><span class="nav-number">2.</span> <span class="nav-text">随机地址空间</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#dyld"><span class="nav-number">3.</span> <span class="nav-text">dyld</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#二级名称空间"><span class="nav-number">4.</span> <span class="nav-text">二级名称空间</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Load-commands-结构"><span class="nav-number">5.</span> <span class="nav-text">Load commands 结构</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Segment-amp-Section"><span class="nav-number">6.</span> <span class="nav-text">Segment &amp; Section</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">赵小嘎</p>
+  <div class="site-description" itemprop="description">赵小嘎在 Github 上的个人博客</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">18</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">赵小嘎</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
