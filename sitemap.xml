@@ -72,6 +72,13 @@
   </url>
   
   <url>
+    <loc>http://zhaoxioaga.github.io/2016/05/17/NSURLConnection%E4%BD%BF%E7%94%A8/</loc>
+    
+    <lastmod>2021-06-21</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>http://zhaoxioaga.github.io/2016/05/27/NSURLSession%E7%9A%84%E4%BD%BF%E7%94%A8/</loc>
     
     <lastmod>2021-06-21</lastmod>
@@ -86,7 +93,7 @@
   </url>
   
   <url>
-    <loc>http://zhaoxioaga.github.io/2016/05/17/NSURLConnection%E4%BD%BF%E7%94%A8/</loc>
+    <loc>http://zhaoxioaga.github.io/2016/06/17/AFN2-0%E4%B8%8E3-0%E6%AF%94%E8%BE%83(%E4%B8%89)/</loc>
     
     <lastmod>2021-06-21</lastmod>
     
@@ -94,13 +101,6 @@
   
   <url>
     <loc>http://zhaoxioaga.github.io/2016/05/06/Hexo%E4%B8%BB%E9%A2%98%E8%AE%BE%E7%BD%AE/</loc>
-    
-    <lastmod>2021-06-21</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://zhaoxioaga.github.io/2016/06/17/AFN2-0%E4%B8%8E3-0%E6%AF%94%E8%BE%83(%E4%B8%89)/</loc>
     
     <lastmod>2021-06-21</lastmod>
     
@@ -123,7 +123,7 @@
 
   <url>
     <loc>http://zhaoxioaga.github.io/</loc>
-    <lastmod>2021-06-24</lastmod>
+    <lastmod>2021-06-25</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
